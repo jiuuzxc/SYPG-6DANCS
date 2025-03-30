@@ -1,4 +1,4 @@
-vendor_name,model_name,myct,mmin,mmax,cach,chmin,chmax,prp,erp,'A9 / 45 '
+VENDOR_NAME,MODEL_NAME,MYCT,MMIN,MMAX,CACH,CHMIN,CHMAX,PRP,ERP,'A9 / 45 '
 adviser,32/60,125,256,6000,256,16,128,198,199,4.4
 amdahl,470v/7,29,8000,32000,32,8,32,269,253,5.977778
 amdahl,470v/7a,29,8000,32000,32,8,32,220,253,4.888889
