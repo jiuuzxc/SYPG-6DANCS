@@ -1,3 +1,12 @@
+# fixed comments for readability
+# capitalized legends in the csv for uniformality
+# added legend on scatter plot, "Data Points"
+# added spacings on each accuracy
+# removed machine.data, it is just the same as the csv
+# removed unnecessary codes
+
+# GOAL: ADD MORE VISUALIZATION/MODELS (THROUGH DROP-DOWN? - LINEAR REGRESSION, BAR GRAPH, HISTOGRAM), REVAMP GUI, ANALYZE THE RESULTS IF THEY ARE ACCURATE OR NOT
+
 import numpy as np
 import pandas as pd
 from sklearn import linear_model
@@ -7,14 +16,15 @@ import pickle
 import tkinter as tk
 from tkinter import *
 
+# Training Output
 def output():       
-    data = pd.read_csv("computer_hardware_withformula.csv", sep=",") #read in all data from database and exclude the commas
+    data = pd.read_csv("computer_hardware_withformula.csv", sep=",") # Read dataset
 
-    #predicting Estimated relative performance
-    predict = "prp"
+    # Predict estimated published relative performance / TARGET VARIABLE
+    predict = "PRP"
 
-    #I chose attributes which are integers and most relevant to improve accuracy
-    data = data[["myct","mmin", "mmax","cach", "chmin","chmax","prp"]]
+    # Relevant attributes for predictions
+    data = data[["MYCT", "MMIN", "MMAX", "CACH", "CHMIN", "CHMAX", "PRP"]]
     '''
     MYCT: machine cycle time in nanoseconds (integer)
     MMIN: minimum main memory in kilobytes (integer)
@@ -26,79 +36,66 @@ def output():
     ERP: estimated relative performance from the original article (integer)
     '''
 
-    #set up two arrays, one is array defined all of the attributes, and another is the label
-    x = np.array(data.drop([predict], axis=1))
-    y =np.array(data[predict])
-    x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
-    #takes in all of the attributes/labels and split into four different arrays (x_train, x_test, y_train, y_test)
-    #0.1 so that it splits up 10% of the data into test samples, and let model use 90% information (training dataset) to become good at predicting
+    x = np.array(data.drop([predict], axis=1)) # Independent variables (MYCT, MMIN, MMAX, CACH, CHMIN, CHMAX, PRP)
+    y = np.array(data[predict]) # Dependent variable (PRP)
 
+    # 90% training (x_train, y_train) & 10% testing which is represented by 0.1 (x_test, y_test)
+    x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size = 0.1)
 
-    #Train model multiple times to achieve high accuracy
-    best = 0
+    # Train the model
+    print("\nTrain Results:")
+    best = 0 # Tracks the best accuracy score
+
+    # Model will be trained 20 time to improve accuracy
     for _ in range(20):
         x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
 
+        # Use linear regression and adjust the training data
         linear = linear_model.LinearRegression()
-        #linear regression is used as there should be a linear relationship, and the datatypes of attributes in the dataset is integers
+        linear.fit(x_train, y_train) # Create the best fit line
 
-        linear.fit(x_train, y_train) #creates the best fit line
+        # Compute accuracy score
         acc = linear.score(x_test, y_test)
-        print("Accuracy: " + str(acc)) #prints accuracy for each instance from dataset
+        print("Accuracy: " + str(acc)) # Print score for each iteration
 
+        # Model is saved using pickle, when new accuracy is best
         if acc > best:
             best = acc
             with open("hardware_performance.pickle", "wb") as f:
                 pickle.dump(linear, f)
 
-    #Loads the linear model
+    # Load best saved model / linear regression model
     pickle_in = open("hardware_performance.pickle", "rb")
     linear = pickle.load(pickle_in)
 
-    #printing coefficient and intercept from the best fit line for all attributes used above
     print("------------------------")
-    print('Coefficient: \n', linear.coef_)
-    print('Intercept: \n', linear.intercept_)
+    print('Coefficient: \n', linear.coef_) # Coefficient values (how much each feature affects PRP)
+    print('Intercept: \n', linear.intercept_) # Intercept (regression line starts)
     print("------------------------")
 
-    # prints a list of all predictions as well as the input data from the dataset
-    predicted= linear.predict(x_test)
+    # Display the prediction of the performance on x_test and compare it to the y_test
+    predicted = linear.predict(x_test)
     for x in range(len(predicted)):
-        print(predicted[x], x_test[x], y_test[x])
+        print(predicted[x], "\t", x_test[x], "\t", y_test[x])
             
-def plot(attr):   #investigate the significance of certain attributes affect on Computer performance(PRP)
-    plot = str(attr)
-    data = pd.read_csv("machine.data", sep=",") #read in all data from database and exclude the commas
+# Scatter Plot Output           
+def plot(attr): 
+    data = pd.read_csv("computer_hardware_withformula.csv", sep=",") 
 
-    #predicting Estimated relative performance
-    predict = "PRP"
-
-    #I chose attributes which are integers and most relevant to improve accuracy
     data = data[["MYCT","MMIN", "MMAX","CACH", "CHMIN","CHMAX","PRP"]]
-    
 
-    #set up two arrays, one is array defined all of the attributes, and another is the label
-    x = np.array(data.drop([predict], axis=1))
-    y =np.array(data[predict])
-    x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
-    #takes in all of the attributes/labels and split into four different arrays (x_train, x_test, y_train, y_test)
-    #0.1 so that it splits up 10% of the data into test samples, and let model use 90% information (training dataset) to become good at predicting
-
-
-    plt.scatter(data[plot], data["PRP"])
+    # X-axis (selected attributes) & Y-axis (PRP)
+    plt.scatter(data[attr], data["PRP"], label="Data Points")
     plt.legend(loc=4)
-    plt.xlabel(plot)
+    plt.xlabel(attr)
     plt.ylabel("Performance")
-    #print(np.interp(20000, x,y))
     plt.show()
 
-
-
-# create the tkinter window
+# Tkinter window / GUI
 root = tk.Tk()
-root.title("GUI")                      
+root.title("6DANCS | SYPG")                       
 
-# ===== header frame
+# Header frame
 header_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=2)
 header_frame.pack(padx=10,pady=20)
 headerLabel = tk.Label(header_frame,text='Supervised Machine Learning Model to predict Computer Performance', bg="white", font=('Helvetica', 18, 'bold'))        
@@ -106,7 +103,7 @@ headerLabel.grid()
 
 headerLabel.grid()
 
-# ===== input frame
+# Model Training Buttons (Input)
 input_frame = tk.Frame(root)
 input_frame.pack()
 
@@ -119,7 +116,7 @@ txtLabel2.grid(row=0,column=0)
 showButton = tk.Button(input_frame, text="           Train          ", bg="seagreen", fg="white", command=output)
 showButton.grid(row=1, column=1, padx=5, pady=20)
 
-# ===== input frame
+# Scatter Plot Buttons (Input)
 input_frame2 = tk.Frame(root)
 input_frame2.pack()
 
@@ -137,7 +134,7 @@ CHMINButton.pack(side=LEFT, padx=10)
 CHMAXButton = tk.Button(input_frame2, text="CHMAX", bg="mediumseagreen", fg="white", command=lambda:plot('CHMAX'))
 CHMAXButton.pack(side=LEFT, padx=10, pady=20)
 
-#another label and say the dataset using
+# User Input Prediction (Input)
 input_frame3 = tk.Frame(root)
 input_frame3.pack()
 
@@ -168,16 +165,9 @@ textEntry6.grid(row=8,column=1)
 predictButton = tk.Button(input_frame3, text="        Predict         ", bg="seagreen", fg="white", command=output)
 predictButton.grid(row=9, column=1, padx=5, pady=20)
 
-# === output frame
+# Output frame
 output_frame = tk.Frame(root)
 output_frame.pack()
 
-#message 
-outLabel = tk.Label(output_frame, text='', font=11)
-outLabel.grid(row=0, column=1)
-
-#message 
-outLabel2 = tk.Label(output_frame, text='', font=11)
-outLabel2.grid(row=1, column=1)
-
+# Loop Tkinter
 root.mainloop()
