@@ -32,13 +32,10 @@ import seaborn as sns
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import os
 
 # Read dataset
 def load_data():
-    current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the script
-    dataset_path = os.path.join(current_dir, 'computer_hardware_withformula.csv')  # Path to the dataset
-    return pd.read_csv(dataset_path, sep=",")[["MYCT", "MMIN", "MMAX", "CACH", "CHMIN", "CHMAX", "PRP"]]
+    return pd.read_csv("computer_hardware_withformula.csv", sep=",")[["MYCT", "MMIN", "MMAX", "CACH", "CHMIN", "CHMAX", "PRP"]]
     '''
     Relevant attributes for predictions
     MYCT: machine cycle time in nanoseconds (integer) - The time it takes for the CPU to execute a single machine cycle, measured in nanoseconds (ns). 
